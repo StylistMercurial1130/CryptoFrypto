@@ -1,8 +1,8 @@
 # CryptoFrypto
-A crypto trading platform written in java
+A crypto trading platform written in Java
 
-TODO 
+## TODO
 
-- **Stage 1 : Kafka consumers**
-    [] kafka producer to subscribe and put coin base web socket api results
-    [] kafka consumer to consume from kafka where each topic is going to be a single coin
+- **Stage 1: Kafka consumers**
+    - [ ] Kafka producer to subscribe and put Coinbase WebSocket API results
+    - [ ] Kafka consumer to consume from Kafka where each topic is going to be a single coin
