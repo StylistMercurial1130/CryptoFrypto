@@ -1,0 +1,41 @@
+# Maven / Java build outputs
+/target/
+/bin/
+/build/
+/out/
+/dist/
+
+# Compiled classes and archives
+*.class
+**/*.class
+*.jar
+*.war
+*.ear
+*.nar
+
+# Native / executable binaries
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Node / frontend deps
+node_modules/
+
+# IDEs and editors
+.idea/
+*.iml
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and temp
+*.log
+tmp/
+*.tmp
+
+# Generated sources and build metadata
+/generated/
+/build/
