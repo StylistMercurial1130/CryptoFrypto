@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: marketfeed
+
+producer:
+  coinbase:
+    source:
+      marketdata:
+        production: wss://ws-feed.exchange.coinbase.com
+        sandbox: wss://ws-feed-public.sandbox.exchange.coinbase.com
+      directmarketdata:
+        production: wss://ws-direct.exchange.coinbase.com
+        sandbox: wss://ws-direct.sandbox.exchange.coinbase.com
+    sandbox:
+      channel: ticker
+      productIds: BTC-USD
+
+threadpool:
+  configuration:
+    corePoolSize: 10
+    maxPoolSize: 50
+    queueCapacity: 100
