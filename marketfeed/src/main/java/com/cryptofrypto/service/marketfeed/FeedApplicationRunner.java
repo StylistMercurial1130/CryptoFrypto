@@ -23,6 +23,4 @@ public class FeedApplicationRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         logger.info("starting coinbase feed");
     }
-
-
 }

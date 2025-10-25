@@ -14,9 +14,3 @@ producer:
     sandbox:
       channel: ticker
       productIds: BTC-USD
-
-threadpool:
-  configuration:
-    corePoolSize: 10
-    maxPoolSize: 50
-    queueCapacity: 100
