@@ -69,8 +69,7 @@ public class CoinbaseWebsocketListener implements WebSocket.Listener {
 
                     kafkaTemplate.send(topic, key, data.toString());
 
-                    WebSocket.Listener.super.onText(webSocket, data, last);
-                    return null;
+                    return WebSocket.Listener.super.onText(webSocket, data, last);
                 }
                 case "error": {
                     var requestMessage = RequestMessage.UnsubscribeMessage(

@@ -1,5 +1,6 @@
 package com.cryptofrypto.service.marketfeed;
 
+import java.util.concurrent.CountDownLatch;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,13 +15,24 @@ public class FeedApplicationRunner implements ApplicationRunner {
 
     @SuppressWarnings("unused")
     @Autowired
-    private KafkaTemplate<String,String> kafkaTemplate;
+    private KafkaTemplate<String, String> kafkaTemplate;
 
-    private final Logger logger = LoggerFactory.getLogger(FeedApplicationRunner.class); 
-    
-    
+    private final Logger logger = LoggerFactory.getLogger(FeedApplicationRunner.class);
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         logger.info("starting coinbase feed");
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            logger.info("shutting down coinbase feed !");
+
+            latch.countDown();
+        }));
+
+        latch.await();
+
+        logger.info("shuting down !");
     }
 }

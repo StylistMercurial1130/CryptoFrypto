@@ -35,7 +35,12 @@ public class CoinbaseProducerService {
     public void createFeed(String coinName) {
         if (!marketFeedMap.containsKey(coinName)) {
             logger.info("creating feed for {}", coinName);
-            marketFeedMap.put(coinName, new CoinbaseWebsocketFeed(resourceUri, kafkaTemplate, coinName, kafkaTopic,httpClient));
+            marketFeedMap.put(coinName, new CoinbaseWebsocketFeed(
+                    resourceUri,
+                    kafkaTemplate,
+                    coinName,
+                    kafkaTopic, 
+                    httpClient));
         }
     }
 
