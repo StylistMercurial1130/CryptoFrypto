@@ -2,6 +2,10 @@ spring:
   application:
     name: marketfeed
 
+consumer:
+  request:
+    topic: requestMessage
+
 producer:
   coinbase:
     source:
