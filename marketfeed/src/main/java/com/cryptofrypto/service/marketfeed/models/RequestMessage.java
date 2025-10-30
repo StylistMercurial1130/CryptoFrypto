@@ -10,23 +10,23 @@ public class RequestMessage extends SerializableModel {
     @JsonProperty("type")
     public final String type;
 
-    @JsonProperty("channels")
-    public final List<String> channels;
+    @JsonProperty("channel")
+    public final String channel;
 
     @JsonProperty("product_ids")
     public final List<String> productIds;     
 
-    public RequestMessage(String type,List<String> channels,List<String> productIds) {
+    public RequestMessage(String type,String channel,List<String> productIds) {
         this.type = type;
-        this.channels = channels;
+        this.channel = channel;
         this.productIds = productIds;
     }
 
-    public static RequestMessage SubscribeMessage(List<String> channels,List<String> productIds) {
-        return new RequestMessage("subscribe", channels, productIds);
+    public static RequestMessage SubscribeMessage(String channel,List<String> productIds) {
+        return new RequestMessage("subscribe", channel, productIds);
     }
 
-    public static RequestMessage UnsubscribeMessage(List<String> channels, List<String> productIds) {
-        return new RequestMessage("unsubscribe", channels, productIds);
+    public static RequestMessage UnsubscribeMessage(String channel, List<String> productIds) {
+        return new RequestMessage("unsubscribe", channel, productIds);
     }
 }

@@ -10,10 +10,10 @@ producer:
   coinbase:
     source:
       marketdata:
-        production: wss://ws-feed.exchange.coinbase.com
+        production: wss://advanced-trade-ws.coinbase.com
         sandbox: wss://ws-feed-public.sandbox.exchange.coinbase.com
       directmarketdata:
-        production: wss://ws-direct.exchange.coinbase.com
+        production: wss://advanced-trade-ws.coinbase.com
         sandbox: wss://ws-direct.sandbox.exchange.coinbase.com
     sandbox:
       channel: ticker

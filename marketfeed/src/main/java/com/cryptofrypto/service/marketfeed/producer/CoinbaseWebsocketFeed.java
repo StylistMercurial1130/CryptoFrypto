@@ -44,6 +44,8 @@ public class CoinbaseWebsocketFeed {
                 .buildAsync(URI.create(resourceUri),
                         new CoinbaseWebsocketListener(resourceUri, kafkaTemplate, sourceConfig, topic))
                 .join();
+
+        logger.info("created websocket feed for coind {}", coinName);
     }
 
     public void close() {

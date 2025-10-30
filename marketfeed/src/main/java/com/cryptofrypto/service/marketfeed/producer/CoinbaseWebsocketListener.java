@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties.Websocket;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import com.cryptofrypto.service.marketfeed.models.RequestMessage;
@@ -37,11 +38,16 @@ public class CoinbaseWebsocketListener implements WebSocket.Listener {
 
     @Override
     public void onOpen(WebSocket webSocket) {
-        var requestMessage = RequestMessage.SubscribeMessage(sourceConfiguation.channels, sourceConfiguation.coinNames);
+        var requestMessage = RequestMessage.SubscribeMessage(sourceConfiguation.channels.get(0), sourceConfiguation.coinNames);
 
         try {
-            var byteBuffer = ByteBuffer.wrap(requestMessage.serialize().getBytes(StandardCharsets.UTF_8));
-            webSocket.sendBinary(byteBuffer, true);
+            logger.info("sending subscribe message : {}", requestMessage.serialize());
+
+            webSocket.sendText(requestMessage.serialize(), true);
+            
+            WebSocket.Listener.super.onOpen(webSocket);
+            
+            logger.info("subscribe message sent");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -52,10 +58,12 @@ public class CoinbaseWebsocketListener implements WebSocket.Listener {
         try {
             ObjectMapper objMapper = new ObjectMapper();
 
-            var feedData = objMapper.readValue(data.toString(), new TypeReference<HashMap<String, String>>() {
+            var feedData = objMapper.readValue(data.toString(), new TypeReference<HashMap<String, Object>>() {
             });
 
-            switch (feedData.get("type")) {
+            logger.info("deserialized incomming feed data");
+
+            switch ((String)feedData.get("channel")) {
                 case "heartbeat": {
                     // ignore for now
                     WebSocket.Listener.super.onText(webSocket, data, last);
@@ -67,27 +75,32 @@ public class CoinbaseWebsocketListener implements WebSocket.Listener {
                             ? sourceConfiguation.coinNames.stream().collect(Collectors.joining(" | "))
                             : sourceConfiguation.coinNames.getFirst();
 
+                    logger.info("received tick for coins {} : {}",sourceConfiguation.coinNames, data.toString());
+
                     kafkaTemplate.send(topic, key, data.toString());
 
                     return WebSocket.Listener.super.onText(webSocket, data, last);
                 }
-                case "error": {
-                    var requestMessage = RequestMessage.UnsubscribeMessage(
-                            sourceConfiguation.channels,
-                            sourceConfiguation.coinNames);
+                // todo! handle error case outside ! 
+                //case "error": {
+                //     var requestMessage = RequestMessage.UnsubscribeMessage(
+                //             sourceConfiguation.channels.get(0),
+                //             sourceConfiguation.coinNames);
 
-                    try {
-                        var byteBuffer = ByteBuffer.wrap(requestMessage.serialize().getBytes(StandardCharsets.UTF_8));
+                //     try {
+                //         var byteBuffer = ByteBuffer.wrap(requestMessage.serialize().getBytes(StandardCharsets.UTF_8));
 
-                        webSocket.sendBinary(byteBuffer, true);
-                        webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "");
+                //         webSocket.sendBinary(byteBuffer, true);
+                //         webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "");
 
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
+                //     } catch (Exception e) {
+                //         throw new RuntimeException(e);
+                //     }
 
-                    throw new RuntimeException(feedData.get("message"));
-                }
+                //     logger.error(feedData.get("message"));
+
+                //     throw new RuntimeException(feedData.get("message"));
+                // }
                 default: {
                     WebSocket.Listener.super.onText(webSocket, data, last);
                     return null;
@@ -96,5 +109,15 @@ public class CoinbaseWebsocketListener implements WebSocket.Listener {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public CompletionStage<?> onBinary(WebSocket webSocket,
+            ByteBuffer data,
+            boolean last) {
+
+        logger.info("received data !");
+        
+        return WebSocket.Listener.super.onBinary(webSocket, data, last);
     }
 }

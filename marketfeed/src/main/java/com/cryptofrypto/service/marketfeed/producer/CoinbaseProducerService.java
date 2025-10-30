@@ -12,13 +12,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+/*TODO : make sure to make error handling and handle weird scenarios more explicit
+ * Note, will not know when things go south as of now, its an issue, but nothing to worry about...yet
+*/
 @Service
 public class CoinbaseProducerService {
 
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
 
-    @Value("${producer.coinbase.source.marketdata.sandbox}")
+    @Value("${producer.coinbase.source.marketdata.production}")
     private String resourceUri;
 
     @Value("${producer.coinbase.configuration.topic}")
@@ -26,10 +29,10 @@ public class CoinbaseProducerService {
 
     private final Logger logger = LoggerFactory.getLogger(CoinbaseProducerService.class);
     private final Map<String, CoinbaseWebsocketFeed> marketFeedMap = new ConcurrentHashMap<>();
-    private final HttpClient httpClient;
+    private final HttpClient httpClient = HttpClient.newHttpClient();
 
     public CoinbaseProducerService() {
-        this.httpClient = HttpClient.newHttpClient();
+
     }
 
     public void createFeed(String coinName) {
@@ -39,7 +42,7 @@ public class CoinbaseProducerService {
                     resourceUri,
                     kafkaTemplate,
                     coinName,
-                    kafkaTopic, 
+                    kafkaTopic,
                     httpClient));
         }
     }

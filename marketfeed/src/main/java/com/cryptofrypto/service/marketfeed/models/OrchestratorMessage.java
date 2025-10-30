@@ -1,5 +1,6 @@
 package com.cryptofrypto.service.marketfeed.models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -9,7 +10,9 @@ public class OrchestratorMessage {
 
     public final String coinName;
 
-    public OrchestratorMessage(String coinName) {
+    @JsonCreator
+    public OrchestratorMessage(
+            @JsonProperty("coinName") String coinName) {
         this.coinName = coinName;
     }
 
@@ -23,5 +26,9 @@ public class OrchestratorMessage {
         } catch (JsonProcessingException e) {
             throw new Exception(e);
         }
+    }
+
+    public String getCoinName() {
+        return coinName;
     }
 }
