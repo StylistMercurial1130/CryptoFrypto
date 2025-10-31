@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.graphql.GraphQlProperties.Websocket;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import com.cryptofrypto.service.marketfeed.models.RequestMessage;
@@ -61,7 +60,25 @@ public class CoinbaseWebsocketListener implements WebSocket.Listener {
             var feedData = objMapper.readValue(data.toString(), new TypeReference<HashMap<String, Object>>() {
             });
 
-            logger.info("deserialized incomming feed data");
+            if (feedData.containsKey("type") && ((String) feedData.get("type")).equalsIgnoreCase("error")) {
+                var requestMessage = RequestMessage.UnsubscribeMessage(
+                        sourceConfiguation.channels.get(0),
+                        sourceConfiguation.coinNames);
+
+                try {
+                    var byteBuffer = ByteBuffer.wrap(requestMessage.serialize().getBytes(StandardCharsets.UTF_8));
+
+                    webSocket.sendBinary(byteBuffer, true);
+                    webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "");
+
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+
+                logger.error("websocket error message : {}",(String)feedData.get("message"));
+
+                throw new RuntimeException((String)feedData.get("message"));
+            }
 
             switch ((String)feedData.get("channel")) {
                 case "heartbeat": {
@@ -81,26 +98,6 @@ public class CoinbaseWebsocketListener implements WebSocket.Listener {
 
                     return WebSocket.Listener.super.onText(webSocket, data, last);
                 }
-                // todo! handle error case outside ! 
-                //case "error": {
-                //     var requestMessage = RequestMessage.UnsubscribeMessage(
-                //             sourceConfiguation.channels.get(0),
-                //             sourceConfiguation.coinNames);
-
-                //     try {
-                //         var byteBuffer = ByteBuffer.wrap(requestMessage.serialize().getBytes(StandardCharsets.UTF_8));
-
-                //         webSocket.sendBinary(byteBuffer, true);
-                //         webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "");
-
-                //     } catch (Exception e) {
-                //         throw new RuntimeException(e);
-                //     }
-
-                //     logger.error(feedData.get("message"));
-
-                //     throw new RuntimeException(feedData.get("message"));
-                // }
                 default: {
                     WebSocket.Listener.super.onText(webSocket, data, last);
                     return null;
